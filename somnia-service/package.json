@@ -1,0 +1,24 @@
+{
+  "name": "somnia-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@fastify/websocket": "^8.3.1",
+    "@somnia-chain/streams": "^0.9.5",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.25.2",
+    "viem": "^2.9.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3",
+    "tsx": "^4.0.0"
+  }
+}
