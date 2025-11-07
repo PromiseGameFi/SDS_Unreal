@@ -1,13 +1,19 @@
 {
-  "FileVersion": 3,
-  "EngineAssociation": "5.3.2",
-  "Category": "",
-  "Description": "SDS Unreal project with Somnia service module",
-  "Modules": [
-    {
-      "Name": "UnrealCpp",
-      "Type": "Runtime",
-      "LoadingPhase": "Default"
-    }
-  ]
+	"FileVersion": 3,
+	"EngineAssociation": "D:\\UE_56\\UE_5.6",
+	"Category": "",
+	"Description": "SDS Unreal project with Somnia service module",
+	"Modules": [
+		{
+			"Name": "UnrealCpp",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"AdditionalDependencies": [],
+	"Plugins": [],
+	"TargetPlatforms": [
+		"Win64"
+	],
+	"EpicSampleNameHash": 0
 }

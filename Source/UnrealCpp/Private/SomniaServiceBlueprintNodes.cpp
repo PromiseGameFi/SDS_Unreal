@@ -124,6 +124,12 @@ USomniaEndpointAsync* USomniaEndpointAsync::SubscribeSimple(const FString& Event
   return Subscribe(EventId, Context, OnlyPushChanges, LatestOnly, ExcludeDeprecated, Labels);
 }
 
+USomniaEndpointAsync* USomniaEndpointAsync::Subscribe(const FString& EventId, const FString& Context, bool OnlyPushChanges, bool LatestOnly, bool ExcludeDeprecated, const TArray<FString>& Labels) {
+  const FString LabelsJson = BuildArrayJson(Labels, /*bRaw*/false);
+  const FString Body = FString::Printf(TEXT("{\"eventId\":%s,\"context\":%s,\"onlyPushChanges\":%s,\"latestOnly\":%s,\"excludeDeprecated\":%s,\"labels\":%s}"), *QuoteJson(EventId), *QuoteJson(Context), OnlyPushChanges ? TEXT("true") : TEXT("false"), LatestOnly ? TEXT("true") : TEXT("false"), ExcludeDeprecated ? TEXT("true") : TEXT("false"), *LabelsJson);
+  return CallRaw(TEXT("POST"), TEXT("/subscribe"), Body);
+}
+
 USomniaEndpointAsync* USomniaEndpointAsync::StreamsSubscribeSimple(const FString& EventId, const TArray<FString>& EthCalls, const FString& Context, bool OnlyPushChanges, bool LatestOnly, bool ExcludeDeprecated) {
   TArray<FString> Labels;
   return StreamsSubscribe(EventId, EthCalls, Context, OnlyPushChanges, LatestOnly, ExcludeDeprecated, Labels);
