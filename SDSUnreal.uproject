@@ -1,6 +1,6 @@
 {
   "FileVersion": 3,
-  "EngineAssociation": "5.6",
+  "EngineAssociation": "5.3.2",
   "Category": "",
   "Description": "SDS Unreal project with Somnia service module",
   "Modules": [
