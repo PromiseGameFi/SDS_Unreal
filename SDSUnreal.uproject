@@ -1,0 +1,13 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.6",
+  "Category": "",
+  "Description": "SDS Unreal project with Somnia service module",
+  "Modules": [
+    {
+      "Name": "UnrealCpp",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
+}
