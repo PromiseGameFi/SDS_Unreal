@@ -11,7 +11,12 @@
 		}
 	],
 	"AdditionalDependencies": [],
-	"Plugins": [],
+	"Plugins": [
+		{
+			"Name": "LiveCoding",
+			"Enabled": false
+		}
+	],
 	"TargetPlatforms": [
 		"Win64"
 	],
