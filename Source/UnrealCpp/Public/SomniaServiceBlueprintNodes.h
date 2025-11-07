@@ -90,12 +90,12 @@ public:
 
   // Subscriptions (HTTP-side creation). Use /ws WebSocket for push data.
   UFUNCTION(BlueprintCallable, Category="SomniaService|Streams", meta=(BlueprintInternalUseOnly="true", AutoCreateRefTerm="Labels"))
-  static USomniaEndpointAsync* Subscribe(const FString& EventId, const FString& Context = TEXT("data"), bool OnlyPushChanges = true, bool LatestOnly = false, bool ExcludeDeprecated = false, const TArray<FString>& Labels);
-
+  static USomniaEndpointAsync* Subscribe(const FString& EventId, const FString& Context, bool OnlyPushChanges, bool LatestOnly, bool ExcludeDeprecated, const TArray<FString>& Labels);
+  
   UFUNCTION(BlueprintCallable, Category="SomniaService|Streams", meta=(BlueprintInternalUseOnly="true"))
   static USomniaEndpointAsync* SubscribeSimple(const FString& EventId, const FString& Context = TEXT("data"), bool OnlyPushChanges = true, bool LatestOnly = false, bool ExcludeDeprecated = false);
   UFUNCTION(BlueprintCallable, Category="SomniaService|Streams", meta=(BlueprintInternalUseOnly="true", AutoCreateRefTerm="EthCalls,Labels"))
-  static USomniaEndpointAsync* StreamsSubscribe(const FString& EventId, const TArray<FString>& EthCalls, const FString& Context = TEXT("data"), bool OnlyPushChanges = true, bool LatestOnly = false, bool ExcludeDeprecated = false, const TArray<FString>& Labels);
+  static USomniaEndpointAsync* StreamsSubscribe(const FString& EventId, const TArray<FString>& EthCalls, const FString& Context, bool OnlyPushChanges, bool LatestOnly, bool ExcludeDeprecated, const TArray<FString>& Labels);
   UFUNCTION(BlueprintCallable, Category="SomniaService|Streams", meta=(BlueprintInternalUseOnly="true"))
   static USomniaEndpointAsync* StreamsSubscribeSimple(const FString& EventId, const TArray<FString>& EthCalls, const FString& Context = TEXT("data"), bool OnlyPushChanges = true, bool LatestOnly = false, bool ExcludeDeprecated = false);
 
