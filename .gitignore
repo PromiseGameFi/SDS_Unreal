@@ -89,6 +89,9 @@ Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
+# content File
+Content/*
+
 # Mac Artifacts
 .DS_Store
 
@@ -106,6 +109,7 @@ DerivedDataCache/*
 **/Plugins/**/Intermediate/*
 **/Plugins/**/Binaries/*
 **/Plugins/**/Saved/*
+**/Plugins/**/Content/*
 
 # Temp Files
 Config/DefaultEditorPerProjectUserSettings.ini

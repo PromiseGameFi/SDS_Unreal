@@ -13,11 +13,17 @@ public class SDSUnrealTarget : TargetRules
 
         // Use shared build environment for installed engine
         BuildEnvironment = TargetBuildEnvironment.Shared;
-        // Do not override build environment in shared mode
-        // bOverrideBuildEnvironment = false;
+        // Allow overriding certain settings in shared environment
+        bOverrideBuildEnvironment = true;
 
-        // Rely on installed engine defaults and project plugin settings
-        // Avoid explicit plugin toggling or global defines that conflict in shared environment
+        // Exclude Developer Tools and Editor-only data from game builds
+        bBuildDeveloperTools = false;
+        bBuildTargetDeveloperTools = false;
+        bBuildWithEditorOnlyData = false;
+
+        // Ensure LiveCoding and Debug Visualizer code paths are disabled in game
+        GlobalDefinitions.Add("WITH_LIVECODING=0");
+        GlobalDefinitions.Add("WITH_DEBUG_VISUALIZER=0");
 
         // Game modules
         ExtraModuleNames.AddRange(new string[] { "UnrealCpp" });

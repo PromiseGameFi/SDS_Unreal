@@ -14,7 +14,8 @@ public class UnrealCpp : ModuleRules
             "Engine",
             "HTTP",
             "Json",
-            "JsonUtilities"
+            "JsonUtilities",
+            "Puerts"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]

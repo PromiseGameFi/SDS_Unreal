@@ -1,1 +1,7 @@
-{}
+{
+  "chat": {
+    "schemaId": "0x77fc9ebdd77f5373ab8ee0921215c92acd49def19443d12a43dcd5418932d0ad",
+    "schema": "uint64 timestamp, string message, address sender",
+    "parentSchemaId": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

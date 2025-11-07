@@ -213,6 +213,29 @@ function parseSchemaStr(s: string): Record<string, string> {
   }
   return map
 }
+// Preserve schema field order for encoding
+function parseSchemaFields(s: string): Array<{ name: string, type: string }> {
+  const fields: Array<{ name: string, type: string }> = []
+  for (const token of s.split(',').map(t => t.trim()).filter(Boolean)) {
+    const m = token.match(/^([^:\s]+)[\s:]+(.+)$/)
+    if (!m) continue
+    const type = m[1].trim()
+    const name = m[2].trim()
+    if (!type || !name) continue
+    fields.push({ name, type })
+  }
+  return fields
+}
+function buildEncoderValues(schemaStr: string, values: any): Array<{ name: string, type: string, value: any }> {
+  if (Array.isArray(values)) return values as Array<{ name: string, type: string, value: any }>
+  const fields = parseSchemaFields(schemaStr)
+  const out: Array<{ name: string, type: string, value: any }> = []
+  for (const f of fields) {
+    if (!(f.name in values)) throw new Error(`values_missing_field_${f.name}`)
+    out.push({ name: f.name, type: f.type, value: (values as any)[f.name] })
+  }
+  return out
+}
 
 // Helpers for schemaId filtering
 function buildLatestSchemaIdSet(labels?: string[]): Set<string> {
@@ -233,6 +256,18 @@ function isSchemaIdDeprecated(sid: string): boolean {
     }
   }
   return false
+}
+
+// Safely convert BigInt values to strings for JSON responses
+function sanitizeForJson(input: any): any {
+  if (typeof input === 'bigint') return input.toString()
+  if (Array.isArray(input)) return input.map(sanitizeForJson)
+  if (input && typeof input === 'object') {
+    const out: any = {}
+    for (const [k, v] of Object.entries(input)) out[k] = sanitizeForJson(v)
+    return out
+  }
+  return input
 }
 
 // Compute schemaId from a raw schema string
@@ -374,19 +409,20 @@ app.post('/schemas/encode', async (req, reply) => {
   if (!effectiveSchema) return reply.status(400).send({ ok: false, error: 'schema_or_label_required' })
   if (values == null) return reply.status(400).send({ ok: false, error: 'values_required' })
   try {
-    const encoder = new SchemaEncoder(effectiveSchema)
+    const schemaToUse = effectiveSchema ?? (schemasCache[label]?.schema)
+    const encoder = new SchemaEncoder(schemaToUse as string)
+    const encVals = buildEncoderValues(schemaToUse as string, values)
     let encoded: any
-    try {
-      encoded = (encoder as any).encode?.(values)
-    } catch (err) {
-      if (Array.isArray(values) && (encoder as any).encodeData) {
-        encoded = (encoder as any).encodeData(values)
-      } else {
-        throw err
-      }
+    if ((encoder as any).encodeData) {
+      encoded = (encoder as any).encodeData(encVals)
+    } else if ((encoder as any).encode) {
+      encoded = (encoder as any).encode(encVals)
     }
-    const schemaId = await (sdk as any).streams.computeSchemaId(effectiveSchema)
-    return reply.send({ ok: true, schema: effectiveSchema, schemaId, encoded })
+    if (typeof encoded !== 'string' || !String(encoded).startsWith('0x')) {
+      return reply.status(400).send({ ok: false, error: 'encoding_failed_expected_hex' })
+    }
+    const computedId = await (sdk as any).streams.computeSchemaId(schemaToUse as string)
+    return reply.send({ ok: true, schema: schemaToUse, schemaId: computedId, data: encoded })
   } catch (e: any) {
     return reply.status(500).send({ ok: false, error: e?.message || String(e) })
   }
@@ -409,21 +445,22 @@ app.post('/data/publish', async (req, reply) => {
   try {
     const schemaToUse = effectiveSchema ?? (schemasCache[label]?.schema)
     const encoder = new SchemaEncoder(schemaToUse as string)
+    const encVals = buildEncoderValues(schemaToUse as string, values)
     let encoded: any
-    try {
-      encoded = (encoder as any).encode?.(values)
-    } catch (err) {
-      if (Array.isArray(values) && (encoder as any).encodeData) {
-        encoded = (encoder as any).encodeData(values)
-      } else {
-        throw err
-      }
+    if ((encoder as any).encodeData) {
+      encoded = (encoder as any).encodeData(encVals)
+    } else if ((encoder as any).encode) {
+      encoded = (encoder as any).encode(encVals)
+    }
+    if (typeof encoded !== 'string' || !String(encoded).startsWith('0x')) {
+      return reply.status(400).send({ ok: false, error: 'encoding_failed_expected_hex' })
     }
     const finalSchemaId = effectiveSchemaId ?? await (sdk as any).streams.computeSchemaId(schemaToUse as string)
     const finalDataId = (dataId as `0x${string}`) ?? (('0x' + crypto.randomBytes(32).toString('hex')) as `0x${string}`)
-    const ds = [{ schemaId: finalSchemaId, dataId: finalDataId, value: encoded, parentSchemaId: (parentSchemaId ?? zeroBytes32) }]
-    const result = await (sdk as any).streams.setAndEmitEvents(ds, [])
-    return reply.send({ ok: true, schemaId: finalSchemaId, dataId: finalDataId, result })
+    const ds = [{ id: finalDataId, schemaId: finalSchemaId, data: encoded }]
+    const result = await (sdk as any).streams.set(ds)
+    const safeResult = sanitizeForJson(result)
+    return reply.send({ ok: true, schemaId: finalSchemaId, dataId: finalDataId, result: safeResult })
   } catch (e: any) {
     return reply.status(500).send({ ok: false, error: e?.message || String(e) })
   }
@@ -437,7 +474,8 @@ app.post('/data/getByKey', async (req, reply) => {
     return reply.status(400).send({ ok: false, error: 'schemaId_or_label_publisher_dataId_required' })
   }
   try {
-    const data = await (sdk as any).streams.getByKey(finalSchemaId, publisher, dataId)
+    const dataRaw = await (sdk as any).streams.getByKey(finalSchemaId, publisher, dataId)
+    const data = sanitizeForJson(dataRaw)
     return reply.send({ ok: true, data })
   } catch (e: any) {
     return reply.status(500).send({ ok: false, error: e?.message || String(e) })

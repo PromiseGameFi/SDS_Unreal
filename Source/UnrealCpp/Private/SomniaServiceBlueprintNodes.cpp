@@ -32,6 +32,10 @@ FString USomniaEndpointAsync::QuoteJson(const FString& S) {
   FString Esc = S;
   Esc.ReplaceInline(TEXT("\\"), TEXT("\\\\"));
   Esc.ReplaceInline(TEXT("\""), TEXT("\\\""));
+  // Escape common control characters to produce valid JSON strings
+  Esc.ReplaceInline(TEXT("\r"), TEXT("\\r"));
+  Esc.ReplaceInline(TEXT("\n"), TEXT("\\n"));
+  Esc.ReplaceInline(TEXT("\t"), TEXT("\\t"));
   return FString::Printf(TEXT("\"%s\""), *Esc);
 }
 

@@ -11,6 +11,11 @@
 		}
 	],
 	"AdditionalDependencies": [],
+	"Plugins": [
+		{ "Name": "LiveCoding", "Enabled": false },
+		{ "Name": "ProfileVisualizer", "Enabled": false },
+		{ "Name": "Puerts", "Enabled": true }
+	],
 	"TargetPlatforms": [
 		"Win64"
 	],
